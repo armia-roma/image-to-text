@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .row {
+            display: flex;
+       }
+   
+       .col {
+            flex: 50%; 
+            margin: 30px;
+       }
+       img{
+        max-width: 100%;
+        max-height: 100%;
+       }
+    </style>
+    <title>Image Upload Form</title>
+</head>
+<body>
+    <div class="row">
+        <div class="col">
+            <div class="row">
+                <div class="col">
+                    <h1>Upload an Image</h1>
+                        <input type="file" name="att" id="imageInput" onchange="setImageView(event)">
+                        <button onclick="upload()">Upload</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <img id="image" 
+                    src="pic_trulli.jpg" alt="Select Image">
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="row">
+                <div class="col" id="textInImage">
+                    <h1 >text in image</h1>
+                    <p id="text"></p>
+                    <p id="loading">loading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const input = document.getElementById('imageInput')
+        const image = document.getElementById('image')
+        const text = document.getElementById('text')
+        let loading = document.getElementById('loading')
+        const textInImage = document.getElementById('textInImage')
+        loading.style.visibility = 'hidden';    
+        function getImage(){
+            const formData = new FormData()
+            formData.append('file', input.files[0]);
+            return formData
+        }
+        async function upload() {
+            loading.style.visibility = 'visible';  
+            const data = await getImage()
+            fetch('http://localhost:3000/upload',{
+                method: 'post',
+                body: data 
+                })
+                .then(response => response.json())
+                .then(data => {
+                console.log(data)
+                text.innerHTML = data
+                }).finally(() => {
+                    loading.style.visibility = 'hidden';     
+                })
+        }
+        function setImageView(event) {
+            let reader = new FileReader();
+            reader.onload = function(event) {
+                var img = document.getElementById('image');
+                img.src = event.target.result;
+            };
+            image.src = event.target.result
+            reader.readAsDataURL(input.files[0]);
+        }
+    </script>
+</body>
+</html>
